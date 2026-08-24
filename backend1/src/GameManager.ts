@@ -1,6 +1,6 @@
 import type WebSocket from "ws";
 import { Game } from "./Game.js";
-import { INIT_GAME, MOVE } from "./messages.js";
+import { INIT_GAME, MOVE, SocketMessageSchema } from "./messages.js";
 
 // User, Game
 
@@ -27,7 +27,15 @@ export class GameManager {
 
     private addHandler(socket: WebSocket){
         socket.on("message", (data) => {
-            const message = JSON.parse(data.toString());
+            const parsedData = JSON.parse(data.toString());
+
+            const result = SocketMessageSchema.safeParse(parsedData);
+            if (!result.success) {
+                console.log("Invalid payload received:", result.error);
+                return; 
+            }
+
+            const message = result.data;
 
             if(message.type === INIT_GAME){
                 if(this.pendingUser){
@@ -40,7 +48,7 @@ export class GameManager {
                 }
             }
 
-            if(message.type === MOVE){
+            if(message.type === MOVE && message.move){
                 const game = this.games.find( game => game.player1 === socket || game.player2 === socket );
                 if(game){
                     game.makeMove(socket, message.move);
