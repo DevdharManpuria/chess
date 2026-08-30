@@ -27,7 +27,7 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color }: {
             {displayBoard.map((row, i) => {
                 return <div key={i} className="flex">
                     {row.map((square, j) => {
-                        const fileIndex = isBlack ? 7 - j : j % 8;
+                        const fileIndex = isBlack ? 7 - j : j;
                         const rankIndex = isBlack ? i + 1 : 8 - i;
                         const squareRepresentation = (String.fromCharCode(97 + fileIndex) + "" + rankIndex) as Square;
 
