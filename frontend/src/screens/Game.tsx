@@ -15,6 +15,9 @@ export const Game = () => {
     const [board, setBoard] = useState(chess.board());
     const [color, setColor] = useState<"white" | "black" | null>(null);
 
+    const [started, setStarted] = useState(false);
+    const [waiting, setWaiting] = useState(false);
+
     useEffect(() => {
         if (!socket) return;
         socket.onmessage = (event) => {
@@ -25,6 +28,8 @@ export const Game = () => {
                     setChess(new Chess());
                     setBoard(chess.board());
                     setColor(message.payload.color);
+                    setStarted(true);
+                    setWaiting(false);
                     console.log("Game initialized with color:", message.payload.color);
                     break;
                 case MOVE:
@@ -56,9 +61,29 @@ export const Game = () => {
                 </div>
                 <div className="col-span-2 bg-slate-900 w-full flex justify-center">
                     <div className="pt-8">
-                        <Button onClick={() => socket.send(JSON.stringify({type: INIT_GAME}))}>
-                            Play 
-                        </Button>
+                        
+                        {/* 3. Conditional UI Rendering */}
+                        {!started && !waiting && (
+                            <Button onClick={() => {
+                                socket.send(JSON.stringify({type: INIT_GAME}));
+                                setWaiting(true); // Put player in waiting mode immediately
+                            }}>
+                                Play 
+                            </Button>
+                        )}
+                        
+                        {waiting && (
+                            <div className="text-white text-2xl font-bold flex justify-center">
+                                Waiting for opponent...
+                            </div>
+                        )}
+                        
+                        {started && (
+                            <div className="text-white text-2xl font-bold flex justify-center">
+                                You are playing as {color === "white" ? "White" : "Black"}
+                            </div>
+                        )}
+                        
                     </div>
                 </div>
             </div>
