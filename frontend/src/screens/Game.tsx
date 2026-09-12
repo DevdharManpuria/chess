@@ -18,6 +18,8 @@ export const Game = () => {
     const [started, setStarted] = useState(false);
     const [waiting, setWaiting] = useState(false);
 
+    const [result, setResult] = useState<"white" | "black" | null>(null);
+
     useEffect(() => {
         if (!socket) return;
         socket.onmessage = (event) => {
@@ -39,7 +41,8 @@ export const Game = () => {
                     console.log("Move received");
                     break;
                 case GAME_OVER:
-                    console.log("Game over");
+                    console.log("Game over", message.payload.winner);
+                    setResult(message.payload.winner);
                     break;
             }
         }
@@ -81,6 +84,13 @@ export const Game = () => {
                         {started && (
                             <div className="text-white text-2xl font-bold flex justify-center">
                                 You are playing as {color === "white" ? "White" : "Black"}
+                            </div>
+                        )}
+
+                        {result && (
+                            <div className="mt-8 bg-green-600 p-6 rounded-lg text-white text-center shadow-lg">
+                                <div className="text-3xl font-bold mb-2">Checkmate!</div>
+                                <div className="text-xl capitalize">{result} wins</div>
                             </div>
                         )}
                         
