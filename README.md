@@ -86,4 +86,3 @@ chess/
 
 - The dot-field background and pill navigation are adapted from [React Bits](https://reactbits.dev).
 - Chess logic by [chess.js](https://github.com/jhlywa/chess.js).
-- Piece set: _add the source here_
