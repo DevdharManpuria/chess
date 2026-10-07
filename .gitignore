@@ -1,5 +1,5 @@
 node_modules/
 dist/
 *.env
-repomix-output.xml
-repomix-outputchess.xml
+repomix*
+*.tsbuildinfo
