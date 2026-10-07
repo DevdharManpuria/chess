@@ -2,8 +2,6 @@ import { useState } from "react";
 import type { Color, PieceSymbol, Square } from "chess.js";
 import { Chess } from "chess.js";
 
-// Strong red at the center, still clearly red at the square's edges
-// Pure red at the center, staying clearly red all the way to the corners
 const CHECK_GLOW =
     "radial-gradient(circle closest-side, #ff2020 0%, #ef4444 50%, rgba(239,68,68,0.8) 80%, rgba(239,68,68,0.45) 100%)";
 
