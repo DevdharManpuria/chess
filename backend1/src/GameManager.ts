@@ -70,7 +70,7 @@ export class GameManager {
             if(message.type === INIT_GAME){
                 if (this.pendingUser === socket) return;
                 if (this.findGame(socket)) return;
-                
+
                 if(this.pendingUser){
                     const game = new Game (this.pendingUser, socket);
                     this.games.push(game);
@@ -85,6 +85,10 @@ export class GameManager {
                 const game = this.findGame(socket);
                 if(game){
                     game.makeMove(socket, message.move);
+                    // Free the game's memory as soon as it ends
+                    if (game.board.isGameOver()) {
+                        this.games = this.games.filter(g => g !== game);
+                    }
                 }
             }
         })

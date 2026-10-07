@@ -1,6 +1,6 @@
 import type { WebSocket } from "ws";
 import { Chess } from "chess.js";
-import { GAME_OVER, INIT_GAME, MOVE, type GameOverReason } from "./messages.js";
+import { GAME_OVER, INIT_GAME, MOVE, type GameOverReason, type Move } from "./messages.js";
 
 export class Game {
     public player1: WebSocket; // white
@@ -24,14 +24,16 @@ export class Game {
         }));
     }
 
-    makeMove(socket: WebSocket, move: { from: string; to: string }) {
+    makeMove(socket: WebSocket, move: Move) {
         // Only the player whose turn it is may move. The board itself knows whose turn it is.
         const whiteToMove = this.board.turn() === "w";
         const mover = whiteToMove ? this.player1 : this.player2;
         if (socket !== mover) return;
 
+        const { from, to, promotion } = move;
         try {
-            this.board.move(move);
+            // Only include promotion when it's present (see note below)
+            this.board.move(promotion ? { from, to, promotion } : { from, to });
         } catch {
             return; // illegal move: ignore it
         }

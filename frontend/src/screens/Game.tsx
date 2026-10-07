@@ -22,12 +22,19 @@ const REASON_TEXT: Record<string, string> = {
     insufficient_material: "Draw: insufficient material",
     fifty_moves: "Draw: 50-move rule",
     opponent_left: "Opponent left",
+    connection_lost: "Connection lost",
 };
+
+function resultSubtitle(result: GameResult, color: "white" | "black" | null) {
+    if (result.reason === "connection_lost") return "Your connection dropped, so the game ended.";
+    if (result.winner === null) return "The game is a draw";
+    return result.winner === color ? "You win!" : "You lose";
+}
 
 export const Game = () => {
     const socket = useSocket();
-    const [chess, setChess] = useState(new Chess());
-    const [board, setBoard] = useState(chess.board());
+    const [chess, setChess] = useState(() => new Chess());
+    const [board, setBoard] = useState(() => chess.board());
     const [color, setColor] = useState<"white" | "black" | null>(null);
 
     const [started, setStarted] = useState(false);
@@ -40,27 +47,34 @@ export const Game = () => {
             const message = JSON.parse(event.data);
 
             switch (message.type) {
-                case INIT_GAME:
-                    setChess(new Chess());
-                    setBoard(chess.board());
+                case INIT_GAME: {
+                    const newGame = new Chess();
+                    setChess(newGame);
+                    setBoard(newGame.board());
                     setColor(message.payload.color);
                     setStarted(true);
                     setWaiting(false);
-                    console.log("Game initialized with color:", message.payload.color);
                     break;
-                case MOVE:
-                    const move = message.payload;
-                    chess.move(move);
+                }
+                case MOVE: {
+                    chess.move(message.payload);
                     setBoard(chess.board());
-                    console.log("Move received");
                     break;
+                }
                 case GAME_OVER:
-                    console.log("Game over", message.payload);
                     setResult(message.payload);
                     break;
             }
-        }
+        };
     }, [socket, chess]);
+
+    useEffect(() => {
+        if (socket) return;
+        if (waiting) setWaiting(false);
+        if (started && !result) {
+            setResult({ winner: null, reason: "connection_lost" });
+        }
+    }, [socket, started, result, waiting]);
 
     const chessLogo = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'><path d='M19.333 13.923c-.765 0-1.428-.485-1.688-1.18l-1.396-3.722A2.001 2.001 0 0014.379 8h-4.758a2 2 0 00-1.87 1.34l-1.396 3.72a1.8 1.8 0 01-1.688 1.18H3v2h2.5c.376 0 .732.19.938.508l2.125 3.293A2 2 0 0010.242 21h3.516a2 2 0 001.679-1.077l2.125-3.293a1.12 1.12 0 01.938-.508H21v-2h-1.667zM12 2C9.243 2 7 4.243 7 7v1h10V7c0-2.757-2.243-5-5-5z'/></svg>";
 
@@ -129,6 +143,7 @@ export const Game = () => {
                         chess={chess} 
                         setBoard={setBoard} 
                         color={color}
+                        disabled={!started || result !== null}
                     />
                 </div>
 
@@ -157,7 +172,7 @@ export const Game = () => {
                         </div>
                     )}
                     
-                    {started && (
+                    {started && !result &&(
                         <div className="w-full space-y-6 flex flex-col h-full justify-between">
                             <div className="bg-white/[0.03] rounded-xl p-4 border border-white/[0.05] flex items-center justify-between">
                                 <span className="text-slate-400 font-medium">Playing as</span>
@@ -176,11 +191,7 @@ export const Game = () => {
                                 {REASON_TEXT[result.reason] ?? "Game over"}
                             </div>
                             <div className="text-lg text-slate-300 mb-6">
-                                {result.winner === null
-                                    ? "The game is a draw"
-                                    : result.winner === color
-                                        ? "You win!"
-                                        : "You lose"}
+                                {resultSubtitle(result, color)}
                             </div>
                             <Button onClick={() => window.location.reload()}>
                                 Play Again

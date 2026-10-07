@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Color, PieceSymbol, Square } from "chess.js";
 import { Chess } from "chess.js";
 
-export const ChessBoard = ({ board, socket, chess, setBoard, color }: {
+export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: {
     board: ({
         square: Square;
         type: PieceSymbol;
@@ -16,6 +16,7 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color }: {
         color: Color;
     } | null)[][]>>;
     color: "white" | "black" | null;
+    disabled: boolean;
 }) => {
     const [from, setFrom] = useState<Square | null>(null);
 
@@ -37,41 +38,58 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color }: {
                         return (
                             <div 
                                 onClick={() => {
-                                    if (!from) {
-                                        // WHY: Only select the piece if it belongs to your color
-                                        if (square?.color === myColor) {
-                                            setFrom(squareRepresentation);
-                                            // WHY: Ask chess.js for legal moves and save the destination squares to state
-                                            const moves = chess.moves({ square: squareRepresentation, verbose: true });
-                                            setLegalMoves(moves.map(m => m.to));
-                                        }
-                                    } else {
-                                        // WHY: If you click a different piece of your own color, switch the selection
-                                        if (square?.color === myColor) {
-                                            setFrom(squareRepresentation);
-                                            const moves = chess.moves({ square: squareRepresentation, verbose: true });
-                                            setLegalMoves(moves.map(m => m.to));
-                                            return; 
-                                        }
+                                // WHY: Don't allow interaction if the game hasn't started or is disabled
+                                if(disabled) return;
+                                // WHY: You can only interact with the board on your own turn
+                                if (chess.turn() !== myColor) return;
 
-                                        // WHY: Execute the move
-                                        socket.send(JSON.stringify({
-                                            type: "move",
-                                            move: { from, to: squareRepresentation }
-                                        }));
-                                        
-                                        try {
-                                            chess.move({ from, to: squareRepresentation });
-                                            setBoard(chess.board());
-                                        } catch (e) {
-                                            console.log("Invalid move attempted locally", e);
-                                        }
-                                        
-                                        // WHY: Wipe the selection and dots after a move is made
+                                // WHY: Clicking one of your own pieces selects it, switches selection, or deselects it
+                                if (square?.color === myColor) {
+                                    if (from === squareRepresentation) {
                                         setFrom(null);
                                         setLegalMoves([]);
+                                        return;
                                     }
-                                }}
+                                    setFrom(squareRepresentation);
+                                    const moves = chess.moves({ square: squareRepresentation, verbose: true });
+                                    setLegalMoves(moves.map(m => m.to));
+                                    return;
+                                }
+
+                                // WHY: No piece selected, and this isn't your piece, so there's nothing to do
+                                if (!from) return;
+
+                                // WHY: Clicking a square that isn't a legal destination cancels the selection
+                                if (!legalMoves.includes(squareRepresentation)) {
+                                    setFrom(null);
+                                    setLegalMoves([]);
+                                    return;
+                                }
+
+                                // WHY: A pawn reaching the last rank must promote. We auto-queen for now.
+                                const piece = chess.get(from);
+                                const isPromotion =
+                                    piece?.type === "p" &&
+                                    (squareRepresentation[1] === "8" || squareRepresentation[1] === "1");
+
+                                const move = isPromotion
+                                    ? { from, to: squareRepresentation, promotion: "q" }
+                                    : { from, to: squareRepresentation };
+
+                                // WHY: Apply locally first; only tell the server about moves chess.js accepted
+                                try {
+                                    chess.move(move);
+                                } catch (e) {
+                                    console.log("Invalid move attempted locally", e);
+                                    return;
+                                }
+                                setBoard(chess.board());
+                                socket.send(JSON.stringify({ type: "move", move }));
+
+                                // WHY: Wipe the selection and dots after a move is made
+                                setFrom(null);
+                                setLegalMoves([]);
+                            }}
                                 key={j} 
                                 // WHY: 'relative' ensures the dot stays trapped inside this specific square
                                 className={`w-16 h-16 relative ${(i + j) % 2 === 0 ? 'bg-[#739552]' : 'bg-[#ebecd0]'}`}
