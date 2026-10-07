@@ -92,7 +92,7 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: 
                             }}
                                 key={j} 
                                 // WHY: 'relative' ensures the dot stays trapped inside this specific square
-                                className={`w-[12.5%] aspect-square ${(i + j) % 2 === 0 ? 'bg-[#ebecd0]' : 'bg-[#739552]'}`}
+                                className={`w-[12.5%] aspect-square relative ${(i + j) % 2 === 0 ? 'bg-[#ebecd0]' : 'bg-[#739552]'}`}
                             >
                                 {/* RESTORED: Your exact original layout so the pieces never go off-center */}
                                 <div className={`w-full h-full flex items-center justify-center ${from === squareRepresentation ? "bg-yellow-400" : ""}`}>
