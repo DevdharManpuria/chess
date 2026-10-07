@@ -4,6 +4,7 @@ export const FAMOUS_GAME = {
     white: "Donald Byrne",
     black: "Bobby Fischer",
     event: "New York 1956",
+    keyMoment: 34, // the move after which Fischer's queen sacrifice is inevitable
     moves: [
         "Nf3", "Nf6",    // 1
         "c4", "g6",      // 2

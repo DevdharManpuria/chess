@@ -38,7 +38,7 @@ export const Landing = () => {
 
                 {/* LEFT: the pitch */}
                 <div>
-                    <h1 className="text-6xl lg:text-8xl font-black text-white tracking-tight leading-none">
+                    <h1 className="font-display text-6xl lg:text-8xl font-black text-white tracking-tight leading-none">
                         Your move.
                     </h1>
                     <p className="mt-6 text-lg lg:text-xl text-slate-400 max-w-md leading-relaxed">

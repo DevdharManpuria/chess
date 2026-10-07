@@ -63,6 +63,21 @@ export const useReplay = () => {
 
     useEffect(() => {
         const chess = new Chess();
+        // Respect users who asked their system for less motion: show one still position instead of autoplay
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            let still = startingPieces();
+            let move: Move | null = null;
+            for (const san of FAMOUS_GAME.moves.slice(0, FAMOUS_GAME.keyMoment)) {
+                move = chess.move(san);
+                still = applyMove(still, move);
+            }
+            setPieces(still);
+            if (move) {
+                setLastMove({ from: move.from, to: move.to });
+                setMoveText(formatMove(FAMOUS_GAME.keyMoment - 1, move.san));
+            }
+            return;
+        }
         let ply = 0; // half-moves played so far
         let timer: ReturnType<typeof setTimeout>;
 
@@ -97,8 +112,20 @@ export const useReplay = () => {
             timer = setTimeout(step, MOVE_DELAY_MS);
         };
 
+        // Pause while the tab is hidden; resume when the user comes back
+        const onVisibilityChange = () => {
+            clearTimeout(timer);
+            if (document.visibilityState === "visible") {
+                timer = setTimeout(step, MOVE_DELAY_MS);
+            }
+        };
+        document.addEventListener("visibilitychange", onVisibilityChange);
+
         timer = setTimeout(step, START_DELAY_MS);
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            document.removeEventListener("visibilitychange", onVisibilityChange);
+        };
     }, []);
 
     return { pieces, lastMove, moveText };
