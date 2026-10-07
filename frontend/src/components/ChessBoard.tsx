@@ -27,7 +27,7 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: 
     const displayBoard = isBlack ? [...board].reverse().map(row => [...row].reverse()) : board;
 
     return (
-        <div className="text-white-200 [view-transition-name:board]">
+        <div className="w-full max-w-[512px] [view-transition-name:board]">
             {displayBoard.map((row, i) => {
                 return <div key={i} className="flex">
                     {row.map((square, j) => {
@@ -92,26 +92,24 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: 
                             }}
                                 key={j} 
                                 // WHY: 'relative' ensures the dot stays trapped inside this specific square
-                                className={`w-16 h-16 relative ${(i + j) % 2 === 0 ? 'bg-[#ebecd0]' : 'bg-[#739552]'}`}
+                                className={`w-[12.5%] aspect-square ${(i + j) % 2 === 0 ? 'bg-[#ebecd0]' : 'bg-[#739552]'}`}
                             >
                                 {/* RESTORED: Your exact original layout so the pieces never go off-center */}
-                                <div className={`w-full h-full justify-center flex ${from === squareRepresentation ? "bg-yellow-400" : ""}`}>
-                                    <div className="h-full justify-center flex flex-col">
-                                        {square ? (
-                                            <img 
-                                                className="w-12 h-12" 
-                                                src={`/${square.color}${square.type}.svg`} 
-                                                alt={`${square.color} ${square.type}`} 
-                                            />
-                                        ) : null}
-                                    </div>
+                                <div className={`w-full h-full flex items-center justify-center ${from === squareRepresentation ? "bg-yellow-400" : ""}`}>
+                                    {square ? (
+                                        <img
+                                            className="w-[75%] h-[75%]"
+                                            src={`/${square.color}${square.type}.svg`}
+                                            alt={`${square.color} ${square.type}`}
+                                        />
+                                    ) : null}
                                 </div>
 
                                 {/* NEW: Independent Overlay for the Dot */}
                                 {/* WHY: This floats on top without affecting the flexbox layout of the image */}
                                 {legalMoves.includes(squareRepresentation) && (
                                     <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center pointer-events-none">
-                                        <div className="w-4 h-4 bg-slate-800 rounded-full opacity-50"></div>
+                                        <div className="w-[25%] h-[25%] bg-slate-800 rounded-full opacity-50"></div>
                                     </div>
                                 )}
                             </div>
