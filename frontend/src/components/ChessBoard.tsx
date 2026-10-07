@@ -2,6 +2,11 @@ import { useState } from "react";
 import type { Color, PieceSymbol, Square } from "chess.js";
 import { Chess } from "chess.js";
 
+// Strong red at the center, still clearly red at the square's edges
+// Pure red at the center, staying clearly red all the way to the corners
+const CHECK_GLOW =
+    "radial-gradient(circle closest-side, #ff2020 0%, #ef4444 50%, rgba(239,68,68,0.8) 80%, rgba(239,68,68,0.45) 100%)";
+
 export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: {
     board: ({
         square: Square;
@@ -26,6 +31,14 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: 
     const isBlack = color === "black";
     const displayBoard = isBlack ? [...board].reverse().map(row => [...row].reverse()) : board;
 
+    // WHY: Highlight the last move's squares, like the hero board does
+    const lastMove = chess.history({ verbose: true }).at(-1);
+
+    // WHY: If the side to move is in check, find their king so we can mark it
+    const checkedKingSquare = chess.inCheck()
+        ? board.flat().find(p => p?.type === "k" && p.color === chess.turn())?.square
+        : undefined;
+
     return (
         <div className="w-full max-w-[512px] [view-transition-name:board]">
             {displayBoard.map((row, i) => {
@@ -34,6 +47,10 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: 
                         const fileIndex = isBlack ? 7 - j : j;
                         const rankIndex = isBlack ? i + 1 : 8 - i;
                         const squareRepresentation = (String.fromCharCode(97 + fileIndex) + "" + rankIndex) as Square;
+
+                        const isSelected = from === squareRepresentation;
+                        const isLastMove = lastMove?.from === squareRepresentation || lastMove?.to === squareRepresentation;
+                        const isInCheck = checkedKingSquare === squareRepresentation;
 
                         return (
                             <div 
@@ -93,9 +110,12 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: 
                                 key={j} 
                                 // WHY: 'relative' ensures the dot stays trapped inside this specific square
                                 className={`w-[12.5%] aspect-square relative ${(i + j) % 2 === 0 ? 'bg-[#ebecd0]' : 'bg-[#739552]'}`}
+                                style={isInCheck ? { backgroundImage: CHECK_GLOW } : undefined}
                             >
                                 {/* RESTORED: Your exact original layout so the pieces never go off-center */}
-                                <div className={`w-full h-full flex items-center justify-center ${from === squareRepresentation ? "bg-yellow-400" : ""}`}>
+                                <div className={`w-full h-full flex items-center justify-center ${
+                                        isSelected ? "bg-yellow-300/70" : isLastMove ? "bg-yellow-300/40" : ""
+                                    }`}>
                                     {square ? (
                                         <img
                                             className="w-[75%] h-[75%]"
