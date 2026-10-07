@@ -4,7 +4,7 @@ import { ChessBoard } from "../components/ChessBoard"
 import { useSocket } from "../hooks/useSocket"
 import { Chess } from "chess.js";
 import DotField from "../components/DotField";
-import PillNav from "../components/PillNav";
+import { SiteNav } from "../components/SiteNav";
 
 export const INIT_GAME = "init_game";
 export const MOVE = "move";
@@ -76,19 +76,7 @@ export const Game = () => {
         }
     }, [socket, started, result, waiting]);
 
-    const chessLogo = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'><path d='M19.333 13.923c-.765 0-1.428-.485-1.688-1.18l-1.396-3.722A2.001 2.001 0 0014.379 8h-4.758a2 2 0 00-1.87 1.34l-1.396 3.72a1.8 1.8 0 01-1.688 1.18H3v2h2.5c.376 0 .732.19.938.508l2.125 3.293A2 2 0 0010.242 21h3.516a2 2 0 001.679-1.077l2.125-3.293a1.12 1.12 0 01.938-.508H21v-2h-1.667zM12 2C9.243 2 7 4.243 7 7v1h10V7c0-2.757-2.243-5-5-5z'/></svg>";
 
-    if (!socket) {
-        return (
-            <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-6 px-6 text-slate-200">
-                <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                <div className="text-lg font-medium tracking-wide">Connecting to server...</div>
-                <div className="text-sm text-slate-500 max-w-xs text-center">
-                    If the server was asleep, this can take up to a minute.
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="relative min-h-screen bg-[#0a0a0a] overflow-hidden text-slate-200 font-sans flex flex-col">
@@ -113,24 +101,8 @@ export const Game = () => {
                 </div>
             </div>
             
-            {/* GSAP PILL NAV */}
-            <div className="relative z-[1000] w-full flex justify-center mt-6 [&>div]:!relative [&>div]:!top-0 [&>div]:!left-0">
-                <PillNav
-                    logo={chessLogo}
-                    logoAlt="DevChess"
-                    items={[
-                        { label: 'Play', href: '#play' },
-                        { label: 'Puzzles', href: '#puzzles' },
-                        { label: 'Watch', href: '#watch' },
-                        { label: 'Leaderboard', href: '#leaderboard' }
-                    ]}
-                    baseColor="#ffffff"           
-                    pillColor="#120F17"           
-                    hoveredPillTextColor="#120F17" 
-                    pillTextColor="#ffffff"       
-                    className="shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] border border-white/5"
-                />
-            </div>
+            {/* SITE NAV */}
+            <SiteNav />
 
             {/* MAIN CONTENT AREA */}
             <div className="relative z-10 max-w-screen-xl mx-auto w-full flex-1 flex flex-col lg:flex-row gap-12 items-center lg:items-start justify-center py-12 px-6 mt-6 pointer-events-none">
@@ -149,6 +121,17 @@ export const Game = () => {
 
                 {/* RIGHT COLUMN: Minimalist Control Panel */}
                 <div className="w-full lg:w-96 bg-black/40 backdrop-blur-md rounded-3xl p-8 border border-white/10 flex flex-col items-center justify-center min-h-[450px] pointer-events-auto shadow-2xl">
+                    
+                    {!socket ? (
+                        <div className="flex flex-col items-center space-y-6 text-center">
+                            <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+                            <div className="text-slate-200 text-lg font-medium tracking-wide">Connecting to server...</div>
+                            <div className="text-sm text-slate-500 max-w-xs">
+                                If the server was asleep, this can take up to a minute.
+                            </div>
+                        </div>
+                    ) : (
+                        <>
                     
                     {!started && !waiting && (
                         <div className="text-center w-full">
@@ -198,7 +181,8 @@ export const Game = () => {
                             </Button>
                         </div>
                     )}
-                    
+                        </>
+                )}
                 </div>
             </div>
         </div>

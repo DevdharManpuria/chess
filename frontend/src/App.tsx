@@ -1,22 +1,17 @@
  
 import './App.css'
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Landing } from './screens/Landing';
 import { Game } from './screens/Game';
 
+// Created once, outside the component: the same reasoning as NAV_ITEMS
+const router = createBrowserRouter([
+  { path: "/", element: <Landing /> },
+  { path: "/game", element: <Game /> },
+]);
+
 function App() {
-  return (
-    <>
-    <div className='h-screen bg-slate-950'>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/game" element={<Game />} />
-      </Routes>
-    </BrowserRouter>
-    </div>
-    </>
-  )
+  return <RouterProvider router={router} />;
 }
 
 export default App

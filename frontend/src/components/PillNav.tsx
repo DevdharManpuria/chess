@@ -255,6 +255,7 @@ const PillNav: React.FC<PillNavProps> = ({
       >
         {isRouterLink(items?.[0]?.href) ? (
           <Link
+            viewTransition
             to={items[0].href}
             aria-label="Home"
             onMouseEnter={handleLogoEnter}
@@ -361,6 +362,7 @@ const PillNav: React.FC<PillNavProps> = ({
                 <li key={item.href} role="none" className="flex h-full">
                   {isRouterLink(item.href) ? (
                     <Link
+                      viewTransition
                       role="menuitem"
                       to={item.href}
                       className={basePillClasses}
@@ -443,6 +445,7 @@ const PillNav: React.FC<PillNavProps> = ({
               <li key={item.href}>
                 {isRouterLink(item.href) ? (
                   <Link
+                    viewTransition
                     to={item.href}
                     className={linkClasses}
                     style={defaultStyle}

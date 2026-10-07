@@ -8,7 +8,7 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: 
         type: PieceSymbol;
         color: Color;
     } | null)[][];
-    socket: WebSocket;
+    socket: WebSocket | null;
     chess: Chess;
     setBoard: React.Dispatch<React.SetStateAction<({
         square: Square;
@@ -27,7 +27,7 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: 
     const displayBoard = isBlack ? [...board].reverse().map(row => [...row].reverse()) : board;
 
     return (
-        <div className="text-white-200">
+        <div className="text-white-200 [view-transition-name:board]">
             {displayBoard.map((row, i) => {
                 return <div key={i} className="flex">
                     {row.map((square, j) => {
@@ -39,7 +39,7 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: 
                             <div 
                                 onClick={() => {
                                 // WHY: Don't allow interaction if the game hasn't started or is disabled
-                                if(disabled) return;
+                                if(disabled || !socket) return;
                                 // WHY: You can only interact with the board on your own turn
                                 if (chess.turn() !== myColor) return;
 
@@ -92,7 +92,7 @@ export const ChessBoard = ({ board, socket, chess, setBoard, color, disabled }: 
                             }}
                                 key={j} 
                                 // WHY: 'relative' ensures the dot stays trapped inside this specific square
-                                className={`w-16 h-16 relative ${(i + j) % 2 === 0 ? 'bg-[#739552]' : 'bg-[#ebecd0]'}`}
+                                className={`w-16 h-16 relative ${(i + j) % 2 === 0 ? 'bg-[#ebecd0]' : 'bg-[#739552]'}`}
                             >
                                 {/* RESTORED: Your exact original layout so the pieces never go off-center */}
                                 <div className={`w-full h-full justify-center flex ${from === squareRepresentation ? "bg-yellow-400" : ""}`}>
