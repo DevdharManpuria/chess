@@ -2,7 +2,7 @@
 
 Real-time multiplayer chess in the browser. Click play, get matched with another player, and start a game. No account needed.
 
-**Live:** _coming soon_
+**Live:** https://devchess-f8qw.onrender.com/
 
 ## Features
 
