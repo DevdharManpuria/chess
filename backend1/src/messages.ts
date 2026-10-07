@@ -13,3 +13,11 @@ export const SocketMessageSchema = z.object({
     type: z.enum([INIT_GAME, MOVE]),
     move: MoveSchema.optional()
 });
+
+export type GameOverReason =
+    | "checkmate"
+    | "stalemate"
+    | "repetition"
+    | "insufficient_material"
+    | "fifty_moves"
+    | "opponent_left";

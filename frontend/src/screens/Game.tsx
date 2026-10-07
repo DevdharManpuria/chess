@@ -10,6 +10,20 @@ export const INIT_GAME = "init_game";
 export const MOVE = "move";
 export const GAME_OVER = "game_over";
 
+type GameResult = {
+    winner: "white" | "black" | null;
+    reason: string;
+};
+
+const REASON_TEXT: Record<string, string> = {
+    checkmate: "Checkmate",
+    stalemate: "Stalemate",
+    repetition: "Draw by repetition",
+    insufficient_material: "Draw: insufficient material",
+    fifty_moves: "Draw: 50-move rule",
+    opponent_left: "Opponent left",
+};
+
 export const Game = () => {
     const socket = useSocket();
     const [chess, setChess] = useState(new Chess());
@@ -18,7 +32,7 @@ export const Game = () => {
 
     const [started, setStarted] = useState(false);
     const [waiting, setWaiting] = useState(false);
-    const [result, setResult] = useState<"white" | "black" | null>(null);
+    const [result, setResult] = useState<GameResult | null>(null);
 
     useEffect(() => {
         if (!socket) return;
@@ -41,8 +55,8 @@ export const Game = () => {
                     console.log("Move received");
                     break;
                 case GAME_OVER:
-                    console.log("Game over", message.payload.winner);
-                    setResult(message.payload.winner);
+                    console.log("Game over", message.payload);
+                    setResult(message.payload);
                     break;
             }
         }
@@ -158,8 +172,16 @@ export const Game = () => {
                     
                     {result && (
                         <div className="mt-6 w-full bg-emerald-900/40 border border-emerald-500/30 p-6 rounded-xl text-center shadow-[0_0_30px_rgba(16,185,129,0.2)] backdrop-blur-md">
-                            <div className="text-3xl font-black text-emerald-400 mb-2 tracking-tight">Checkmate</div>
-                            <div className="text-lg text-slate-300 capitalize mb-6">{result} takes the victory</div>
+                            <div className="text-3xl font-black text-emerald-400 mb-2 tracking-tight">
+                                {REASON_TEXT[result.reason] ?? "Game over"}
+                            </div>
+                            <div className="text-lg text-slate-300 mb-6">
+                                {result.winner === null
+                                    ? "The game is a draw"
+                                    : result.winner === color
+                                        ? "You win!"
+                                        : "You lose"}
+                            </div>
                             <Button onClick={() => window.location.reload()}>
                                 Play Again
                             </Button>
