@@ -6,13 +6,11 @@ export class Game {
     public player1: WebSocket; // white
     public player2: WebSocket; // black
     public board: Chess;
-    private startTime: Date;
 
     constructor(player1: WebSocket, player2: WebSocket) {
         this.player1 = player1;
         this.player2 = player2;
         this.board = new Chess();
-        this.startTime = new Date();
 
         this.player1.send(JSON.stringify({
             type: INIT_GAME,
@@ -32,7 +30,7 @@ export class Game {
 
         const { from, to, promotion } = move;
         try {
-            // Only include promotion when it's present (see note below)
+            // exactOptionalPropertyTypes rejects promotion: undefined, so only add the key when it's present
             this.board.move(promotion ? { from, to, promotion } : { from, to });
         } catch {
             return; // illegal move: ignore it

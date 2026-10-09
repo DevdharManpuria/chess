@@ -1,5 +1,4 @@
 import { createServer } from "node:http";
-//ws in nodejs
 import { WebSocketServer, type WebSocket } from 'ws';
 import { GameManager } from './GameManager.js';
 

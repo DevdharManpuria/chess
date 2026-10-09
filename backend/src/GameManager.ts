@@ -7,23 +7,17 @@ import { GAME_OVER, INIT_GAME, MOVE, SocketMessageSchema } from "./messages.js";
 export class GameManager {
     private games: Game[];
     private pendingUser: WebSocket | null;
-    private users: WebSocket[];
 
     constructor() {
         this.games = [];
         this.pendingUser = null;
-        this.users = [];
     }
 
     addUser(socket: WebSocket){
-        this.users.push(socket);
         this.addHandler(socket);
     }
 
     removeUser(socket: WebSocket){
-        this.users = this.users.filter( user => user !== socket);
-        // Stop the game here because the user left
-
         // If they were waiting for a match, take them out of the queue
         if (this.pendingUser === socket) {
             this.pendingUser = null;
