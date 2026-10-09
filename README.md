@@ -17,8 +17,9 @@
 
 </div>
 
-<!-- Record a short GIF of a game (or take a screenshot), save it as docs/demo.gif, then uncomment: -->
-<!-- ![DevChess demo](docs/demo.gif) -->
+<p align="center">
+  <img src="docs/demo.gif" alt="Two players in a live DevChess game, from matchmaking to checkmate" width="900" />
+</p>
 
 ## About
 
