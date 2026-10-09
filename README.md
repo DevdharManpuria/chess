@@ -206,4 +206,4 @@ Released under the [MIT License](LICENSE).
 
 ## Author
 
-**Devdhar Manpuria** · [GitHub](https://github.com/DevdharManpuria)
+**Devdhar Manpuria** · [GitHub](https://github.com/DevdharManpuria) · [LinkedIn](https://www.linkedin.com/in/devdharmanpuria/) · [LeetCode](https://leetcode.com/u/DevGamesdtn/)
