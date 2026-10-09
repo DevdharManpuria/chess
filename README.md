@@ -26,7 +26,7 @@ DevChess pairs you with another player in seconds and streams every move over We
 
 The server acts as the referee. Every move is checked for turn order and legality with chess.js before it reaches your opponent, so a modified client can't play illegal moves or move out of turn.
 
-> **Playing solo?** Open the site in two browser windows and click **Find Match** in both. They'll be paired with each other.
+> **Playing solo?** Open the site in two browser windows and click **Find a match** in both. They'll be paired with each other.
 
 > **Heads up:** the backend runs on Render's free tier and sleeps when idle, so the first connection can take up to a minute. The client retries automatically.
 
@@ -102,18 +102,10 @@ All messages are JSON over a single WebSocket connection.
 **Prerequisites:** Node.js 20 or newer and npm.
 
 ```bash
-git clone https://github.com/DevdharManpuria/chess.git
-cd chess
-
-# Terminal 1: backend, listens on ws://localhost:8080
-cd backend1
-npm install
-npm run dev
-
-# Terminal 2 (from the repo root): frontend, runs on http://localhost:5173
-cd frontend
-npm install
-npm run dev
+git clone https://github.com/DevdharManpuria/devchess.git
+cd devchess
+npm run setup   # installs root, backend and frontend dependencies
+npm run dev     # backend on ws://localhost:8080, frontend on http://localhost:5173
 ```
 
 The frontend connects to `ws://localhost:8080` by default, so you don't need a `.env` file for local development.
@@ -129,13 +121,11 @@ See [`frontend/.env.example`](frontend/.env.example).
 
 ### Scripts
 
-| Folder | Command | Description |
+| Where | Command | Description |
 | --- | --- | --- |
-| `backend1` | `npm run dev` | Start the server with hot reload |
-| `backend1` | `npm run build` | Compile TypeScript to `dist/` |
-| `backend1` | `npm start` | Run the compiled server |
-| `frontend` | `npm run dev` | Start the Vite dev server |
-| `frontend` | `npm run build` | Type-check and build to `dist/` |
+| root | `npm run setup` | Install dependencies for root, backend and frontend |
+| root | `npm run dev` | Run backend and frontend together |
+| root | `npm run build` | Build both (a good check before pushing) |
 | `frontend` | `npm run lint` | Run ESLint |
 
 ## Deployment
@@ -143,7 +133,7 @@ See [`frontend/.env.example`](frontend/.env.example).
 Both halves are deployed on Render.
 
 **Backend (Web Service)**
-- Root directory: `backend1`
+- Root directory: `backend`
 - Build command: `npm install && npm run build`
 - Start command: `npm start`
 
@@ -158,7 +148,8 @@ Both halves are deployed on Render.
 
 ```
 .
-├── backend1/
+├── package.json              # root scripts: setup, dev, build
+├── backend/
 │   └── src/
 │       ├── index.ts          # HTTP + WebSocket server, heartbeat
 │       ├── GameManager.ts    # matchmaking queue, message routing, disconnects
@@ -168,7 +159,7 @@ Both halves are deployed on Render.
     ├── public/               # chess piece SVGs
     └── src/
         ├── screens/          # Landing and Game pages
-        ├── components/       # ChessBoard, HeroBoard, DotField, PillNav
+        ├── components/       # ChessBoard, GamePanel, HeroBoard, DotField, PillNav
         ├── hooks/            # useSocket (auto-reconnect), useReplay
         └── data/             # Game of the Century move list
 ```
@@ -189,15 +180,14 @@ Both halves are deployed on Render.
 Issues and pull requests are welcome. For bigger changes, please open an issue first.
 
 1. Fork the repo and create a branch: `git checkout -b feat/your-change`
-2. Keep the server authoritative: rule and state changes belong in `backend1/src/Game.ts` or `GameManager.ts`
-3. If you change the protocol, update both `backend1/src/messages.ts` and the message constants in `frontend/src/screens/Game.tsx`
+2. Keep the server authoritative: rule and state changes belong in `backend/src/Game.ts` or `GameManager.ts`
+3. If you change the protocol, update both `backend/src/messages.ts` and the message constants in `frontend/src/screens/Game.tsx`
 4. Run `npm run lint` and `npm run build` in `frontend/` before opening a PR
 
 ## Acknowledgements
 
 - [chess.js](https://github.com/jhlywa/chess.js) for move generation and validation
 - [React Bits](https://reactbits.dev) for the DotField and PillNav components
-- Piece set by [AUTHOR](LINK)
 - Donald Byrne vs. Bobby Fischer, New York 1956, for the landing-page replay
 
 ## License
